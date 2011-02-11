@@ -104,6 +104,7 @@ iterateList(queueNode *queue)
       LOG(("%d\t", (int) curr->data));
       curr = curr->next;
    } while (curr != head);
+   LOG(("\n"));
 }
 
 
@@ -120,16 +121,13 @@ int main()
    }
 
    iterateList(list);
-   printf("\n");
 
    printf("Removed %d\n", (int)removeQueueNode(&list));
    iterateList(list);
-   printf("\n");
 
    printf("Adding -1 to head.\n");
    insertQueueNodeFront(&list, (void *)-1);
    iterateList(list);
-   printf("\n");
 
    return 0;
 }
