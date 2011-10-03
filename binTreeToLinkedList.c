@@ -48,6 +48,8 @@ void inorder(node *n)
     inorder(n->right);
 }
 
+// Convert binary search tree to circular doubly linked list
+// in place.
 void convertBinTreeToLinkedList(node *root, node **head)
 {
     if (root == NULL) {
@@ -65,6 +67,7 @@ void convertBinTreeToLinkedList(node *root, node **head)
         (*head)->next = *head;
         (*head)->prev = *head;
     } else {
+        // Insert node at the tail.
         node *oldTail = (*head)->prev;
         root->prev = oldTail;
         root->next = *head;
