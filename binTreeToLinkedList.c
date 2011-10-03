@@ -48,7 +48,7 @@ void inorder(node *n)
     inorder(n->right);
 }
 
-// Convert binary search tree to circular doubly linked list
+// Convert binary search tree to a sorted circular doubly linked list
 // in place.
 void convertBinTreeToLinkedList(node *root, node **head)
 {
@@ -56,11 +56,10 @@ void convertBinTreeToLinkedList(node *root, node **head)
         return;
     }
 
-    convertBinTreeToLinkedList(root->left, head);
-
     // Necessary to save the right child else it can
     // be modified by the code below.
     node *right = root->right;
+    convertBinTreeToLinkedList(root->left, head);
 
     if (*head == NULL) {
         *head = root;
@@ -100,7 +99,7 @@ void iterateList(node *head)
 
 int main()
 {
-    int arr[] = {0, 11, -50, -2, 10};
+    int arr[] = {25, 11, -50, 500, -2, 10};
     int i;
     node *root = NULL;
 
