@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define ARRAY_SIZE(a) (sizeof a / sizeof a[0])
 struct  node {
     int data;
     union {
@@ -44,7 +45,7 @@ void inorder(node *n)
     }
 
     inorder(n->left);
-    printf("%d, ", n->data);
+    printf("%d ", n->data);
     inorder(n->right);
 }
 
@@ -103,7 +104,14 @@ int main()
     int i;
     node *root = NULL;
 
-    for (i = 0; i < sizeof arr / sizeof arr[0]; i++) {
+    for (i = 0; i < ARRAY_SIZE(arr); i++) 
+        printf("%d ", arr[i]);
+
+    printf("\n");
+
+
+
+    for (i = 0; i < ARRAY_SIZE(arr); i++) {
         root = addNode(root, arr[i]);
     }
 
