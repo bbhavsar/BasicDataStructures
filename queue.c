@@ -10,6 +10,11 @@
    #define LOG(str)
 #endif
 
+struct queueNode {
+   struct queueNode *prev;
+   struct queueNode *next;
+   void *data;
+};
 
 void
 insertQueueNodeBack(queueNode **head,  // IN/OUT

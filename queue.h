@@ -1,12 +1,11 @@
+// Trivial implementation of a queue using circular doubly linked list.
+
 #ifndef _QUEUE_H_
 #define _QUEUE_H_
 
-struct queueNode {
-   struct queueNode *prev;
-   struct queueNode *next;
-   void *data;
-};
 
+// Forward declaration of queueNode to hide private members of queue implementation.
+struct queueNode;
 typedef struct queueNode queueNode;
 
 void
@@ -19,5 +18,5 @@ void *
 removeQueueNode(queueNode **head);
 
 
-#endif
+#endif // _QUEUE_H_
 
