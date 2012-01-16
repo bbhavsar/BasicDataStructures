@@ -152,9 +152,9 @@ put(hashtable *ht,          // IN
 }
 
 
-BOOL
 // TRUE  ==> key found and removed successfully
 // FALSE ==> key not found
+BOOL
 removeEntry(hashtable *ht,      // IN
             const char *key)    // IN
 {
@@ -254,12 +254,19 @@ int main()
     hashtable *ht = createHashtable(2);
     assert (ht);
     int i;
+    void *dummy;
     int len = sizeof items / sizeof items[0]; 
     for (i = 0; i < len; i++) {
         printf("putting item: %s\n", items[i].key);
-        int dummy;
-        put(ht, items[i].key, (void *)items[i].val, (void **)&dummy);
+        assert(
+            put(ht, items[i].key, (void *)items[i].val, &dummy) == 0
+        );
     }
+
+    assert(
+        put(ht, "dog", (void *)934322, &dummy) == 1        
+    );
+    assert((int)dummy == 1232);
 
     int val;
     assert(
