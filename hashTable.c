@@ -191,7 +191,7 @@ removeEntry(hashtable *ht,      // IN
 
 // Returns array of keys terminated by NULL.
 char **
-getAllKeys(hashtable *ht)
+getAllKeys(const hashtable *ht)     // IN
 {
     char **result = calloc(ht->totalElems + 1, sizeof *result);
     int i;

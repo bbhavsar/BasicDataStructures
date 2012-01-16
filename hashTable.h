@@ -73,7 +73,7 @@ removeEntry(hashtable *ht,
 // Caller should use deleteAllKeys() to release
 // keys returned by this function.
 char **
-getAllKeys(hashtable *ht);      // IN
+getAllKeys(const hashtable *ht);      // IN
 
 // Deletes keys returned by getAllKeys() function.
 void
