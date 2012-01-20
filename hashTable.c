@@ -61,9 +61,8 @@ getHashIndex(const hashtable *ht,   // IN
     assert(key != NULL && ht != NULL);
 
     // Trivial hash function.
-    while (*key != '\0') {
+    for(; *key != '\0'; key++) {
         val += *key;
-        key++;        
     }
 
     return val % ht->size;
@@ -79,15 +78,14 @@ lookupNode(const hashtable *ht,         // IN
            const char *key)             // IN
 {
     assert(ht != NULL && key != NULL);
-
+    node *list;
     int bucketIndex = getHashIndex(ht, key);
-    node *list = ht->buckets[bucketIndex];
-    while (list != NULL) {
+
+    for (list = ht->buckets[bucketIndex]; list != NULL; list = list->next) {
         if (strcmp(list->key, key) == 0) {
             // Found the key!
             return list;
         }
-        list = list->next;
     }
 
     return NULL;
@@ -106,6 +104,7 @@ get(const hashtable *ht,    // IN
         *val = n->val;
         return TRUE;
     } else {
+        *val = NULL;
         return FALSE;
     }
 }
@@ -198,12 +197,11 @@ getAllKeys(const hashtable *ht)     // IN
     int num = 0;
 
     for (i = 0; i < ht->size; i++) {
-        node *list = ht->buckets[i];
+        node *list;
 
-        while (list != NULL) {
+        for (list = ht->buckets[i]; list != NULL; list = list->next) {
             assert(num < ht->totalElems);
             result[num++] = strdup(list->key);
-            list = list->next;
         }
     }
 
@@ -231,6 +229,7 @@ deleteHashTable(hashtable *ht)      // IN
         assert(result);
     }
 
+    assert(ht->totalElems == 0);
     free(ht->buckets);
     free(ht);
 
