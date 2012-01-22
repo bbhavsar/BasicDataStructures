@@ -1,6 +1,5 @@
 #include "hashMap.h"
 
-#include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -9,16 +8,17 @@
 #define FALSE   0
 
 typedef struct node {
-    char *key;
-    void *val;
+    void        *key;
+    void        *val;
     struct node *prev;
     struct node *next;
 } node;
 
 struct HashMap {
-    size_t size;        // number of buckets
-    node **buckets;     
-    size_t totalElems;  // elements currently stored in the HashMap
+    size_t              size;        // number of buckets
+    valueOfKeyFuncPtr   fptr;        // User supplied function to compute value of key
+    node              **buckets;     
+    size_t              totalElems;  // elements currently stored in the HashMap
 };
 
 // Local functions.
@@ -28,18 +28,11 @@ struct HashMap {
 // Function private to HashMap implementation
 static int
 getHashIndex(const HashMap *hm,     // IN
-             const char *key)       // IN
+             const void *key)       // IN
 {
-    int val = 0;
-
     assert(key != NULL && hm != NULL);
 
-    // Trivial hash function.
-    for(; *key != '\0'; key++) {
-        val += *key;
-    }
-
-    return val % hm->size;
+    return hm->fptr(key) % hm->size;
 }
 
 
@@ -49,13 +42,14 @@ getHashIndex(const HashMap *hm,     // IN
 // Function private to HashMap implementation
 static node *
 lookupNode(const HashMap *hm,   // IN
-           const char *key)     // IN
+           const void *key)     // IN
 {
     node *list;
     const int bucketIndex = getHashIndex(hm, key);
+    const int keyVal = hm->fptr(key);
 
     for (list = hm->buckets[bucketIndex]; list != NULL; list = list->next) {
-        if (strcmp(list->key, key) == 0) {
+        if (hm->fptr(list->key) == keyVal) {
             // Found the key!
             return list;
         }
@@ -68,7 +62,8 @@ lookupNode(const HashMap *hm,   // IN
 // Global functions.
 
 HashMap *
-HashMap_create(const size_t size)  // IN
+HashMap_create(const size_t size,           // IN
+               valueOfKeyFuncPtr fptr)      // IN
 {
     HashMap *hm = malloc(sizeof *hm);
     if (hm == NULL) {
@@ -82,6 +77,7 @@ HashMap_create(const size_t size)  // IN
     }
 
     hm->size = size;
+    hm->fptr = fptr;
     hm->totalElems = 0;
     return hm;  
 }
@@ -98,7 +94,7 @@ HashMap_getNumElems(const HashMap *hm)    // IN
 // FALSE ==> key is not present in the HashMap
 BOOL
 HashMap_get(const HashMap *hm,      // IN
-            const char *key,        // IN
+            const void *key,        // IN
             void **val)             // OUT
 {
     node *n = lookupNode(hm, key);
@@ -117,7 +113,7 @@ HashMap_get(const HashMap *hm,      // IN
 // -1 ==> error in key insertion and new val NOT added
 int 
 HashMap_put(HashMap *hm,            // IN
-            const char *key,        // IN
+            void *key,              // IN
             void *val,              // IN
             void **prevVal)         // OUT
 {
@@ -139,7 +135,8 @@ HashMap_put(HashMap *hm,            // IN
         if (newNode == NULL) {
             return -1;
         }
-        newNode->key = strdup(key);
+        // Shallow copy of key.
+        newNode->key = key;
         newNode->val = val;
         newNode->prev = NULL;
 
@@ -162,7 +159,7 @@ HashMap_put(HashMap *hm,            // IN
 // FALSE ==> key not found
 BOOL
 HashMap_removeEntry(HashMap *hm,        // IN
-                    const char *key)    // IN
+                    const void *key)    // IN
 {
     node *n = lookupNode(hm, key);
     if (!n) {
@@ -189,7 +186,8 @@ HashMap_removeEntry(HashMap *hm,        // IN
         }
     }
 
-    free(n->key);
+    // Only a reference to key was stored(shallow copy), so need to free the key.
+
     free(n);
 
     hm->totalElems--;
@@ -198,10 +196,10 @@ HashMap_removeEntry(HashMap *hm,        // IN
 
 
 // Returns array of keys terminated by NULL.
-char **
+void **
 HashMap_getAllKeys(const HashMap *hm)     // IN
 {
-    char **result = calloc(hm->totalElems + 1, sizeof *result);
+    void **result = calloc(hm->totalElems + 1, sizeof *result);
     int i;
     int num = 0;
 
@@ -210,7 +208,7 @@ HashMap_getAllKeys(const HashMap *hm)     // IN
 
         for (list = hm->buckets[i]; list != NULL; list = list->next) {
             assert(num < hm->totalElems);
-            result[num++] = strdup(list->key);
+            result[num++] = list->key;
         }
     }
 
@@ -221,7 +219,7 @@ HashMap_getAllKeys(const HashMap *hm)     // IN
 
 
 void
-HashMap_freeKeys(char **keys)      // IN
+HashMap_freeKeys(void **keys)      // IN
 {
     free(keys);
 }
@@ -230,8 +228,8 @@ HashMap_freeKeys(char **keys)      // IN
 void
 HashMap_delete(HashMap *hm)      // IN
 {
-    char **keys = HashMap_getAllKeys(hm);
-    char **it;
+    void **keys = HashMap_getAllKeys(hm);
+    void **it;
 
     for (it = keys; *it != NULL; it++) {
         BOOL result = HashMap_removeEntry(hm, *it);

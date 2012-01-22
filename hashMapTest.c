@@ -3,6 +3,19 @@
 
 #include "hashMap.h"
 
+// Trivial value function.
+int value(const void *key)
+{
+    const char *str;
+    int val = 0;
+
+    for(str = key; *str != '\0'; str++) {
+        val += *str;
+    }
+
+    return val;
+}
+
 int main()
 {
     struct {
@@ -15,7 +28,7 @@ int main()
                     {"rat", 909787},
                 };
 
-    HashMap *hm = HashMap_create(2);
+    HashMap *hm = HashMap_create(2, value);
     assert (hm);
     int i;
     void *dummy;

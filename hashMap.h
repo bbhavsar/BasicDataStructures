@@ -23,19 +23,19 @@ typedef struct HashMap HashMap;
 
 // HashMap APIs.
 
-// TODO: Use generic (void *) keys instead of string(char *).
-// valueOfKey function should return numeric value of the key.
+// valueOfKeyFunc function should return numeric value of the key.
 // Same keys should return same numeric value, 
 // For e.g.
 // char str[] = "dog";
 // valueOfKey("dog") == valueOfKey(str)
 
-typedef int (*valueOfKeyFptr)(void *key);
+typedef int (*valueOfKeyFuncPtr)(const void *key);
 
 // Returns the HashMap.
 // NULL ==> Error in creating HashMap
 HashMap *
-HashMap_create(const size_t size);   // IN
+HashMap_create(const size_t size,           // IN
+               valueOfKeyFuncPtr fptr);     // IN
 
 // Delete HashMap created by create() function.
 void
@@ -46,7 +46,7 @@ HashMap_delete(HashMap *hm);      // IN
 // FALSE ==> key is not present in the HashMap
 BOOL
 HashMap_get(const HashMap *hm,      // IN
-            const char *key,        // IN
+            const void *key,        // IN
             void **val);            // OUT
 
 // Insert the key --> value pair in the HashMap.
@@ -55,7 +55,7 @@ HashMap_get(const HashMap *hm,      // IN
 // -1  ==> error in key insertion and new val NOT added
 int
 HashMap_put(HashMap *hm,        // IN
-            const char *key,    // IN
+            void *key,          // IN
             void *val,          // IN
             void **prevVal);    // OUT
 
@@ -64,17 +64,17 @@ HashMap_put(HashMap *hm,        // IN
 // FALSE ==> key not found
 BOOL
 HashMap_removeEntry(HashMap *hm,        // IN
-                    const char *key);   // IN
+                    const void *key);   // IN
 
 // Returns array of keys terminated by NULL.
 // Caller should use deleteAllKeys() to release
 // keys returned by this function.
-char **
+void **
 HashMap_getAllKeys(const HashMap *hm);      // IN
 
 // Releases memory allocated for keys returned by getAllKeys() function.
 void
-HashMap_freeKeys(char **keys);     // IN
+HashMap_freeKeys(void **keys);     // IN
 
 // Returns number of key --> value pairs currently stored in the HashMap.
 size_t
