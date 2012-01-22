@@ -51,7 +51,6 @@ static node *
 lookupNode(const HashMap *hm,   // IN
            const char *key)     // IN
 {
-    assert(hm != NULL && key != NULL);
     node *list;
     const int bucketIndex = getHashIndex(hm, key);
 
@@ -132,21 +131,25 @@ HashMap_put(HashMap *hm,            // IN
     }
 
     // Add the new key at the head of the bucket.
-    node *newNode = malloc(sizeof *newNode);
-    if (newNode == NULL) {
-        return -1;
+    {
+        const int bucketIndex = getHashIndex(hm, key);
+        node *newNode = malloc(sizeof *newNode);
+        node *prevBucketHead;
+
+        if (newNode == NULL) {
+            return -1;
+        }
+        newNode->key = strdup(key);
+        newNode->val = val;
+        newNode->prev = NULL;
+
+        prevBucketHead = hm->buckets[bucketIndex];
+        if (prevBucketHead != NULL) {
+            prevBucketHead->prev = newNode;
+        }
+        newNode->next = prevBucketHead;
+        hm->buckets[bucketIndex] = newNode;
     }
-    newNode->key = strdup(key);
-    newNode->val = val;
-    newNode->prev = NULL;
-    
-    const int bucketIndex = getHashIndex(hm, key);
-    node *prevBucketHead = hm->buckets[bucketIndex];
-    if (prevBucketHead != NULL) {
-        prevBucketHead->prev = newNode;
-    }
-    newNode->next = prevBucketHead;
-    hm->buckets[bucketIndex] = newNode;
 
     hm->totalElems++;
 
